@@ -1,4 +1,7 @@
-// InputForm.tsx
+import { useState } from "react";
+import Olho from "../assets/eye-svgrepo-com.svg";
+import OlhoClose from "../assets/eye-closed-svgrepo-com.svg";
+
 interface Props {
   title: string;
   value: string;
@@ -26,11 +29,17 @@ const InputForm = ({
   onChange,
   onFocus,
 }: Props) => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const handleTogglePasswordVisibility = () => {
+    setIsPasswordVisible((prev) => !prev);
+  };
+
   return (
-    <div className="[--clr:#1f1f1f] dark:[--clr:#999999] relative flex flex-row items-center">
+    <div className="w-full [--clr:#1f1f1f] dark:[--clr:#999999] relative flex flex-row items-center">
       <input
         id={id}
-        type={type}
+        type={type === "password" && isPasswordVisible ? "text" : type}
         placeholder={place}
         disabled={disabled}
         value={value}
@@ -40,10 +49,22 @@ const InputForm = ({
         aria-invalid="false"
         onChange={({ target }) => onChange && onChange(target.value)}
         onFocus={onFocus}
-        className={`peer text-black dark:text-white pl-2 h-[40px] min-h-[40px] pr-[40px] leading-normal appearance-none resize-none box-border text-base w-full text-inherit block text-left border border-solid bg-white dark:bg-zinc-900 rounded-[10px] m-0 p-0 outline-0 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#71717a2e] dark:focus-visible:ring-[#14b8a61a] ${
+        className={`peer relative text-black h-10 min-h-10 pr-10 leading-normal appearance-none resize-none box-border text-base w-full text-inherit block text-left border border-solid bg-white rounded-[10px] m-0 p-0 outline-0 focus-visible:outline-0 focus-visible:border-teal-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#71717a2e] dark:focus-visible:ring-[#14b8a61a] ${
           errorMessage ? "border-red-500" : ""
-        }`}
+        }${type === "password" ? "pl-7" : "pl-2"}`}
       />
+      {type === "password" && (
+        <button
+          type="button"
+          onClick={handleTogglePasswordVisibility}
+          className="absolute items-center object-center w-5 h-5 bg-transparent left-1 focus:outline-none"
+        >
+          <img
+            src={isPasswordVisible ? Olho : OlhoClose}
+            alt="Toggle password visibility"
+          />
+        </button>
+      )}
       <label
         className="cursor-text text-[--clr] inline-block z-0 text-sm mb-px font-normal text-start select-none absolute duration-300 transform origin-[0] translate-x-[32px] peer-focus-visible:text-teal-500 peer-focus-visible:translate-x-[8px] peer-[:not(:placeholder-shown)]:translate-x-[8px] peer-focus-visible:translate-y-[-36px] peer-[:not(:placeholder-shown)]:translate-y-[-36px] peer-[:not(:placeholder-shown)]:text-[-36px]"
         htmlFor={id}
@@ -51,7 +72,7 @@ const InputForm = ({
         {title}
       </label>
 
-      <div className="group w-[40px] absolute top-0 bottom-0 right-0 flex items-center justify-center text-[--clr] peer-focus-visible:text-teal-600">
+      <div className="group w-10 absolute top-0 bottom-0 right-0 flex items-center justify-center text-[--clr] peer-focus-visible:text-teal-600">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="1rem"

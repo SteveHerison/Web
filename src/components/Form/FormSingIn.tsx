@@ -22,25 +22,25 @@ const FormSignIn = () => {
     setEmailError("");
     setPasswordError("");
 
-    let hasError = false;
+    let errorMessage = false;
 
     if (!inputFormEmail) {
       setEmailError("E-mail é obrigatório.");
-      hasError = true;
+      errorMessage = true;
     }
 
     if (!inputFormPassword) {
       setPasswordError("Senha é obrigatória.");
-      hasError = true;
+      errorMessage = true;
     }
 
-    if (hasError) return;
+    if (errorMessage) return;
     setError("Erro ao realizar login. Tente novamente.");
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="mb-5 text-center text-red-500">{error}</p>}
       <div className="flex flex-col gap-4 my-5 space-y-3">
         <InputForm
           title="E-mail"
@@ -52,7 +52,7 @@ const FormSignIn = () => {
           onChange={setInputFormEmail}
           spellcheck={true}
           onFocus={() => handleFocus("email")}
-          errorMessage=""
+          errorMessage={emailError}
         />
         <InputForm
           title="Senha"
@@ -64,7 +64,7 @@ const FormSignIn = () => {
           onChange={setInputFormPassword}
           spellcheck={true}
           onFocus={() => handleFocus("password")}
-          errorMessage=""
+          errorMessage={passwordError}
         />
       </div>
       <label htmlFor="terms" className="flex items-center gap-2">
