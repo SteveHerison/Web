@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import SingInComponent from "../Form";
-import SingUpComponent from "../Form/singUpComponent";
+import SingInComponent from "../ComponentsForm/SingInComponent";
+import SingUpComponent from "../ComponentsForm/singUpComponent";
 import Logo from "../../assets/logo.png";
-import ProgressBar from "../ProgressBar";
+import CadatroEmpresa from "../FormComplementSingUp/CadastroComponent";
 
 // Defina o tipo das props
 type AuthPageProps = {
   initialForm?: string; // Adicione a propriedade `initialForm` como opcional
+  showSuccessAlert?: () => void;
 };
 
-const AuthPage: React.FC<AuthPageProps> = ({ initialForm }) => {
+const AuthPage: React.FC<AuthPageProps> = ({
+  initialForm,
+  showSuccessAlert,
+}) => {
   const [showForm, setShowForm] = useState(false);
   const location = useLocation();
 
@@ -27,6 +31,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialForm }) => {
       return <SingUpComponent />;
     } else if (location.pathname === "/login") {
       return <SingInComponent />;
+    } else if (location.pathname === "/cadastro") {
+      return (
+        <CadatroEmpresa showSuccessAlert={showSuccessAlert ?? (() => {})} />
+      );
     }
     return null;
   };
@@ -52,8 +60,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialForm }) => {
           }`}
         >
           {renderForm()}
-
-          {location.pathname === "/" && <ProgressBar />}
         </div>
       </div>
     </section>

@@ -4,7 +4,7 @@ import InputForm from "../InputForm";
 import { useNavigate } from "react-router-dom"; // Para navegação
 
 const FormSignUp = () => {
-  const [disable, setDisable] = useState(false);
+  const [disable] = useState(false);
   const [inputFormName, setInputFormName] = useState("");
   const [inputFormEmail, setInputFormEmail] = useState("");
   const [inputFormPassword, setInputFormPassword] = useState("");
@@ -72,6 +72,7 @@ const FormSignUp = () => {
           spellcheck={true}
           onFocus={() => handleFocus("name")}
           errorMessage={nameError}
+          place=""
         />
         <InputForm
           title="E-mail"
@@ -83,6 +84,7 @@ const FormSignUp = () => {
           spellcheck={true}
           onFocus={() => handleFocus("email")}
           errorMessage={emailError}
+          place=""
         />
         <InputForm
           title="Senha"
@@ -94,6 +96,7 @@ const FormSignUp = () => {
           spellcheck={true}
           onFocus={() => handleFocus("password")}
           errorMessage={passwordError}
+          place=""
         />
         <InputForm
           title="Confirmação da senha"
@@ -105,6 +108,7 @@ const FormSignUp = () => {
           spellcheck={true}
           onFocus={() => handleFocus("passwordConfirm")}
           errorMessage={passwordConfirmError}
+          place=""
         />
       </div>
       <label htmlFor="terms" className="flex items-center gap-2">
@@ -115,8 +119,11 @@ const FormSignUp = () => {
         />
         Aceito todas as condições
       </label>
-      <div className="px-10">
-        <Button title="Cadastrar" type="submit" />
+      <div className="flex justify-between w-full gap-80">
+        {location.pathname !== "/" && (
+          <Button title="Cadastrar" type="submit" />
+        )}
+        <Button title="Avançar" type="submit" />
       </div>
     </form>
   );

@@ -6,7 +6,7 @@ import InputForm from "../InputForm";
 const FormSignIn = () => {
   const [inputFormEmail, setInputFormEmail] = useState("");
   const [inputFormPassword, setInputFormPassword] = useState("");
-  const [disable, setDisable] = useState(false);
+  const [disable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");

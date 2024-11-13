@@ -10,7 +10,7 @@ interface Props {
   place?: string;
   disabled: boolean;
   required?: boolean;
-  errorMessage: string;
+  errorMessage?: string;
   spellcheck: boolean;
   onChange?: (value: string) => void;
   onFocus?: () => void;
@@ -71,35 +71,38 @@ const InputForm = ({
       >
         {title}
       </label>
-
-      <div className="group w-10 absolute top-0 bottom-0 right-0 flex items-center justify-center text-[--clr] peer-focus-visible:text-teal-600">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="1rem"
-          height="1rem"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          viewBox="0 0 24 24"
-          strokeWidth="2"
-          fill="none"
-          stroke="currentColor"
-          className={`"relative z-10 ${
-            errorMessage ? "text-red-500" : "peer-focus-visible:text-teal-600"
-          }`}
-        >
-          <path fill="none" d="M0 0h24v24H0z" stroke="none"></path>
-          <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
-          <path d="M12 8v4"></path>
-          <path d="M12 16h.01"></path>
-        </svg>
-        <span
-          className={`${
-            errorMessage ? "bg-red-500 text-red-300 font-semibold" : ""
-          } text-sm absolute cursor-default select-none rounded-s px-1.5 right-0 transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:-translate-y-[calc(100%+18px)] bg-gray-200 text-black z-20 text-center`}
-        >
-          {errorMessage ? errorMessage : "Campo obrigatório"}
-        </span>
-      </div>
+      {required && (
+        <div className="group w-10 absolute top-0 bottom-0 right-0 flex items-center justify-center text-[--clr] peer-focus-visible:text-teal-600">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1rem"
+            height="1rem"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            fill="none"
+            stroke="currentColor"
+            className={`"relative z-10 ${
+              errorMessage ? "text-red-500" : "peer-focus-visible:text-teal-600"
+            }`}
+          >
+            <path fill="none" d="M0 0h24v24H0z" stroke="none"></path>
+            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+            <path d="M12 8v4"></path>
+            <path d="M12 16h.01"></path>
+          </svg>
+          <span
+            className={`pointer-events-none ${
+              errorMessage
+                ? "bg-red-500 text-red-300 font-semibold group-hover:-translate-y-9 w-52"
+                : "group-hover:-translate-y-10"
+            } text-sm absolute cursor-default  select-none rounded-s px-1  right-0 transition-all duration-300 opacity-0 group-hover:opacity-100 bg-gray-200 text-black z-20 text-center`}
+          >
+            {errorMessage ? errorMessage : "Campo obrigatório"}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
