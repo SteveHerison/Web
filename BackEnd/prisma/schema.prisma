@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model empresa {
+  idempresa    Int      @id @default(autoincrement())
+  datafuncao   DateTime @db.Date
+  razaosocial  String   @db.VarChar(250) @unique
+  nomefantasia String   @db.VarChar(250)
+  cnpj         BigInt?  @unique
+  email        String   @db.VarChar(100) @unique
+  telefone     String?  @db.VarChar(20)
+  celular      String?  @db.VarChar(20)
+  responsavel  String   @db.VarChar(255)
+  endereco     String?  @db.VarChar(150)
+  numero       String?  @db.VarChar(20)
+  bairro       String?  @db.VarChar(50)
+  cidade       String?  @db.VarChar(50)
+  uf           String?  @db.Char(2)
+  cep          String?  @db.VarChar(10)
+  descricao    String?  @db.Text
+  nome_empresa String?  @default("") @db.VarChar(155)
+  id_usuarios  Int
+datacadastro DateTime @default(now())
+  // Relacionamento com o modelo usuarios
+  usuario      usuarios @relation(fields: [id_usuarios], references: [id])
+}
+
+model usuarios {
+  id           Int      @id @default(autoincrement())
+  nome         String   @db.VarChar(100)
+  email        String   @default("") @db.VarChar(100) @unique
+  cpf          String   @default("0") @db.VarChar(18) @unique
+  senha        String   @default("0") @db.VarChar(255)
+  datacadastro DateTime @db.Date
+  celular      String?  @default("0") @db.VarChar(20)
+  telefone     String?  @default("0") @db.VarChar(20)
+  endereco     String?  @default("") @db.VarChar(150)
+  cep          String?  @default("0") @db.VarChar(10)
+  uf           String?  @default("0") @db.Char(2)
+  cidade       String?  @default("") @db.VarChar(50)
+  numero       String?  @default("0") @db.VarChar(20)
+  bairro       String?  @default("") @db.VarChar(50)
+
+  // Relacionamento reverso com o modelo empresa
+  empresas     empresa[]
+
+  @@index([cpf], map: "cpf")
+  @@index([email], map: "email")
+}
+
