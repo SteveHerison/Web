@@ -1,14 +1,12 @@
 import { prisma } from "../database";
 import { Request, Response } from "express";
 import UserRequestBody from "../types/UserRequestBody";
-import { promises } from "dns";
-import { error } from "console";
 
 export default {
   async createUser(
     request: Request<{}, {}, UserRequestBody>,
     response: Response
-  ): Promise<Response> {
+  ): Promise<void> {
     try {
       const { nome, email, cpf, senha } = request.body;
 
@@ -20,10 +18,11 @@ export default {
       });
 
       if (userExist) {
-        return response.status(400).json({
+        response.status(400).json({
           error: true,
           message: "Erro: Usuário já existe!",
         });
+        return;
       }
 
       // Criação do novo usuário
@@ -37,28 +36,28 @@ export default {
         },
       });
 
-      return response.status(201).json({
+      response.status(201).json({
         error: false,
         message: "Sucesso: Usuário cadastrado com sucesso!",
         data: newUser,
       });
     } catch (error: any) {
-      return response.status(500).json({
+      response.status(500).json({
         error: true,
         message: error.message,
       });
     }
   },
 
-  async getUser(request: Request, response: Response): Promise<Response> {
+  async getUser(request: Request, response: Response): Promise<void> {
     try {
-      const { email, cpf } = request.body; // Agora pega do corpo da requisição
+      const { email, cpf } = request.body;
 
-      // Verifica se pelo menos um campo foi enviado
       if (!email && !cpf) {
-        return response.status(400).json({
+        response.status(400).json({
           message: "Erro: É necessário fornecer um e-mail ou cpf.",
         });
+        return;
       }
 
       const user = await prisma.usuarios.findFirst({
@@ -68,21 +67,22 @@ export default {
       });
 
       if (!user) {
-        return response.status(404).json({
+        response.status(404).json({
           error: true,
           message: "Erro: Usuário não encontrado.",
         });
+        return;
       }
 
       const { senha, ...userWithoutPassword } = user;
 
-      return response.status(200).json({
+      response.status(200).json({
         error: false,
         message: "Sucesso: Usuário encontrado.",
         data: userWithoutPassword,
       });
     } catch (error: any) {
-      return response.status(500).json({
+      response.status(500).json({
         error: true,
         message: error.message,
       });

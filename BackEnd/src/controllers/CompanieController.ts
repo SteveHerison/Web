@@ -6,7 +6,7 @@ export default {
   async createCompanie(
     request: Request<{}, {}, CompanieRequestBody>,
     response: Response
-  ): Promise<Response> {
+  ): Promise<void> {
     try {
       const {
         razaosocial,
@@ -22,25 +22,27 @@ export default {
         cep,
       } = request.body;
 
-      // O id do usuário pode vir do middleware de autenticação
-      const userId = request.userId; // Verifique se o userId foi corretamente atribuído no request (ex. através de um middleware de autenticação)
+      const userId = request.userId; // Agora está corretamente tipado
 
       if (!userId) {
-        return response.status(400).json({
+        response.status(400).json({
           error: true,
           message: "Erro: O usuário não está autenticado.",
         });
+        return;
       }
 
-      // Verifica se o cnpj é uma string e converte para BigInt
       let cnpjBigInt: bigint;
-      if (cnpj) {
-        cnpjBigInt = BigInt(cnpj); // Converte para BigInt se o cnpj for fornecido
-      } else {
-        throw new Error("CNPJ é necessário");
+      try {
+        cnpjBigInt = BigInt(String(cnpj));
+      } catch {
+        response.status(400).json({
+          error: true,
+          message: "Erro: CNPJ inválido.",
+        });
+        return;
       }
 
-      // Verifica se a empresa já existe pelo cnpj, email ou razao social
       const companieExist = await prisma.empresa.findFirst({
         where: {
           OR: [{ email }, { cnpj: cnpjBigInt }, { razaosocial }],
@@ -48,13 +50,13 @@ export default {
       });
 
       if (companieExist) {
-        return response.status(400).json({
+        response.status(400).json({
           error: true,
           message: "Erro: Empresa já existe!",
         });
+        return;
       }
 
-      // Criação do novo registro de empresa, associando ao id do usuário
       const newCompanie = await prisma.empresa.create({
         data: {
           razaosocial,
@@ -68,64 +70,56 @@ export default {
           bairro,
           cidade,
           cep,
-          id_usuarios: userId, // Associa o id do usuário
+          id_usuarios: userId,
           datacadastro: new Date(),
-          datafuncao: new Date(), // Adiciona a propriedade 'datafuncao'
+          datafuncao: new Date(),
         },
       });
 
-      return response.status(201).json({
+      response.status(201).json({
         error: false,
         message: "Sucesso: Empresa cadastrada com sucesso!",
         data: newCompanie,
       });
     } catch (error: any) {
-      return response.status(500).json({
+      response.status(500).json({
         error: true,
         message: error.message,
       });
     }
   },
 
-  async getCompanie(request: Request, response: Response): Promise<Response> {
+  async getCompanie(request: Request, response: Response): Promise<void> {
     try {
-      const { email, cnpj } = request.query;
+      const { id } = request.query;
 
-      let cnpjBigInt: bigint | undefined;
-      if (cnpj) {
-        cnpjBigInt = BigInt(String(cnpj)); // Convertendo para string antes de converter para bigint
-      }
-
-      if (!email && !cnpjBigInt) {
-        return response.status(400).json({
-          message: "Erro: É necessário fornecer um e-mail ou CNPJ.",
+      if (!id) {
+        response.status(400).json({
+          error: true,
+          message: "Erro: O ID da empresa não foi fornecido.",
         });
+        return;
       }
 
-      // Busca a empresa no banco de dados, incluindo as informações do usuário
-      const companie = await prisma.empresa.findFirst({
-        where: {
-          OR: [{ email: String(email) }, { cnpj: cnpjBigInt }],
-        },
-        include: {
-          usuario: true, // Isso incluirá os dados do usuário associado à empresa
-        },
+      const companie = await prisma.empresa.findUnique({
+        where: { idempresa: Number(id) },
       });
 
       if (!companie) {
-        return response.status(404).json({
+        response.status(404).json({
           error: true,
           message: "Erro: Empresa não encontrada.",
         });
+        return;
       }
 
-      return response.status(200).json({
+      response.status(200).json({
         error: false,
         message: "Sucesso: Empresa encontrada.",
         data: companie,
       });
     } catch (error: any) {
-      return response.status(500).json({
+      response.status(500).json({
         error: true,
         message: error.message,
       });

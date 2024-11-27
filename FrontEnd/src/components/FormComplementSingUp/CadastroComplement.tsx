@@ -2,7 +2,8 @@ import { useState } from "react";
 import Button from "../ButtonForm";
 import InputForm from "../InputForm";
 import { useNavigate } from "react-router-dom";
-import AlerSucess from "../Alerts/AlerSucess"; // Importando o alerta de sucesso
+import AlerSucess from "../Alerts/AlerSucess";
+import { insertMaskInCnpj } from "../../functions/mask";
 
 const FormEmpresa = () => {
   const navigate = useNavigate();
@@ -35,21 +36,6 @@ const FormEmpresa = () => {
     setFormErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const validateCnpj = (cnpj: string) => {
-    const cnpjPattern = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
-    return cnpjPattern.test(cnpj);
-  };
-
-  const validateEmail = (email: string) => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
-  };
-
-  const validateTelefone = (telefone: string) => {
-    const telefonePattern = /^\(\d{2}\) \d{4,5}-\d{4}$/;
-    return telefonePattern.test(telefone);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Resetando os erros
@@ -75,7 +61,7 @@ const FormEmpresa = () => {
       errorMessage = true;
     }
 
-    if (!inputCnpj || !validateCnpj(inputCnpj)) {
+    if (!inputCnpj) {
       setFormErrors((prev) => ({
         ...prev,
         cnpj: "CNPJ inválido. Formato esperado: 00.000.000/0000-00",
@@ -93,7 +79,7 @@ const FormEmpresa = () => {
       errorMessage = true;
     }
 
-    if (!validateEmail(inputEmailRespo)) {
+    if (!inputEmailRespo) {
       setFormErrors((prev) => ({
         ...prev,
         email: "Formato de e-mail inválido.",
@@ -109,7 +95,7 @@ const FormEmpresa = () => {
       errorMessage = true;
     }
 
-    if (!validateTelefone(inputTelefone)) {
+    if (!inputTelefone) {
       setFormErrors((prev) => ({
         ...prev,
         telefone: "Formato de telefone inválido. Exemplo: (11) 91234-5678",
@@ -154,22 +140,6 @@ const FormEmpresa = () => {
               errorMessage={formErrors.razaoSocial}
             />
 
-            {cpfOuCnpj === "cpf" && (
-              <InputForm
-                title="CPF"
-                id="cpf"
-                place=""
-                type="text"
-                disabled={disable}
-                value={inputCnpj}
-                onChange={setInputCnpj}
-                spellcheck={true}
-                onFocus={() => handleFocus("cnpj")}
-                errorMessage={formErrors.cnpj}
-                required
-              />
-            )}
-
             {cpfOuCnpj === "cnpj" && (
               <InputForm
                 title="CNPJ"
@@ -178,7 +148,7 @@ const FormEmpresa = () => {
                 type="text"
                 disabled={disable}
                 value={inputCnpj}
-                onChange={setInputCnpj}
+                onChange={(value) => setInputCnpj(insertMaskInCnpj(value))}
                 spellcheck={true}
                 onFocus={() => handleFocus("cnpj")}
                 errorMessage={formErrors.cnpj}
@@ -188,7 +158,7 @@ const FormEmpresa = () => {
             <div className="flex items-center gap-2">
               {cpfOuCnpj !== "cpf" && (
                 <Button
-                  title="CPF"
+                  title="Não"
                   id="cpf"
                   onClick={() => setCpfOuCnpj("cpf")}
                 />

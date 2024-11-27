@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express";
 import UserController from "./controllers/UserController";
 import CompanieController from "./controllers/CompanieController";
+import AuthMiddleware from "./middleware/AuthMiddleware";
+import { Router } from "express";
 
 const app = express();
 app.use(express.json());
@@ -12,24 +14,21 @@ app.get("/", (request: Request, response: Response) => {
 });
 
 // Rota para criação de usuário
-app.post("/createUser", (request: Request, response: Response) => {
-  UserController.createUser(request, response);
-});
+app.post("/createUser", UserController.createUser);
 
 // Rota para obter usuário
-app.get("/getUser", (request: Request, response: Response) => {
-  UserController.getUser(request, response);
-});
+app.get("/getUser", UserController.getUser);
 
-// Rota para criação de empresa (agora usando o controlador correto)
-app.post("/createCompanie", (request: Request, response: Response) => {
-  CompanieController.createCompanie(request, response); // Altera para CompanieController
-});
+// Create a router for companie routes
+const router = Router();
+router.post(
+  "/createCompanie",
+  AuthMiddleware,
+  CompanieController.createCompanie
+);
+router.get("/getCompanie", CompanieController.getCompanie);
 
-// Rota para obter empresa (agora usando o controlador correto)
-app.get("/getCompanie", (request: Request, response: Response) => {
-  CompanieController.getCompanie(request, response); // Altera para CompanieController
-});
+app.use(router);
 
 app.listen(PORT, () => {
   console.log(`Servidor Rodando na porta ${PORT}`);

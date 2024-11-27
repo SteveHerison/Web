@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Button from "../ButtonForm";
 import InputForm from "../InputForm";
+import { EsteticaApi } from "../../helpers/EsteticaAPI";
+import { doLogin } from "../../helpers/AuthHandle";
 
 const FormSignIn = () => {
   const [inputFormEmail, setInputFormEmail] = useState("");
@@ -9,6 +11,7 @@ const FormSignIn = () => {
   const [disable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState("");
+  const [rememberPassword, setRememberPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
 
   const handleFocus = (field: string) => {
@@ -16,26 +19,33 @@ const FormSignIn = () => {
     if (field === "password") setPasswordError("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setEmailError("");
     setPasswordError("");
 
-    let errorMessage = false;
-
-    if (!inputFormEmail) {
-      setEmailError("E-mail é obrigatório.");
-      errorMessage = true;
+    if (!inputFormEmail || !inputFormPassword) {
+      setEmailError(!inputFormEmail ? "O campo de e-mail é obrigatório." : "");
+      setPasswordError(
+        !inputFormPassword ? "O campo de senha é obrigatório." : ""
+      );
+      return;
     }
 
-    if (!inputFormPassword) {
-      setPasswordError("Senha é obrigatória.");
-      errorMessage = true;
-    }
+    try {
+      const json = await EsteticaApi(inputFormEmail, inputFormPassword);
 
-    if (errorMessage) return;
-    setError("Erro ao realizar login. Tente novamente.");
+      if (json.error) {
+        setError(json.message || "Erro desconhecido.");
+      } else {
+        doLogin(json.token!, rememberPassword);
+        window.location.href = "/";
+      }
+    } catch (err) {
+      console.error(err); // Para depuração
+      setError("Erro ao tentar fazer login. Tente novamente."); // Corrigido para string
+    }
   };
 
   return (
@@ -72,6 +82,8 @@ const FormSignIn = () => {
           type="checkbox"
           id="terms"
           className="w-4 h-4 p-2 my-5 outline-none"
+          checked={rememberPassword}
+          onChange={() => setRememberPassword(!rememberPassword)}
         />
         Aceito todas as
       </label>

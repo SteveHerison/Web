@@ -3,7 +3,7 @@ export default interface CompanieRequestBody {
   nomefantasia: string;
   email: string;
   responsavel: string;
-  cnpj?: string | number | bigint | boolean;
+  cnpj?: string | bigint;
   datacadastro: Date;
   celular?: string;
   telefone: string;
