@@ -1,35 +1,20 @@
-import express, { Request, Response } from "express";
-import UserController from "./controllers/UserController";
-import CompanieController from "./controllers/CompanieController";
-import AuthMiddleware from "./middleware/AuthMiddleware";
-import { Router } from "express";
+import Express, { Request, Response } from "express";
+import UserAndCompanyController from "./controller/UserAndCompanyController";
 
-const app = express();
-app.use(express.json());
-
+const app = Express();
+app.use(Express.json());
 const PORT = 3000;
 
-app.get("/", (request: Request, response: Response) => {
-  response.send({});
+app.get("/", (req: Request, res: Response) => {
+  res.json({ message: "Hello World" });
 });
 
-// Rota para criação de usuário
-app.post("/createUser", UserController.createUser);
+// Wrapper na rota POST
 
-// Rota para obter usuário
-app.get("/getUser", UserController.getUser);
-
-// Create a router for companie routes
-const router = Router();
-router.post(
-  "/createCompanie",
-  AuthMiddleware,
-  CompanieController.createCompanie
-);
-router.get("/getCompanie", CompanieController.getCompanie);
-
-app.use(router);
+app.post("/createUserAndCompany", async (req: Request, res: Response) => {
+  await UserAndCompanyController.registerUserAndCompany(req, res);
+});
 
 app.listen(PORT, () => {
-  console.log(`Servidor Rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });

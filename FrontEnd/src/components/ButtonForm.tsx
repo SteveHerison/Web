@@ -1,6 +1,6 @@
 // ButtonForm.tsx
 type Props = {
-  title: string;
+  title?: string;
   id?: string;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";

@@ -12,18 +12,18 @@ model empresa {
   datafuncao   DateTime @db.Date
   razaosocial  String   @db.VarChar(250) @unique
   nomefantasia String   @db.VarChar(250)
-  cnpj         BigInt?  @unique
-  email        String   @db.VarChar(100) @unique
-  telefone     String?  @db.VarChar(20)
-  celular      String?  @db.VarChar(20)
+  cnpj         String   @db.VarChar(18) @unique
+  emailEmpresa        String   @db.VarChar(100) @unique
+  telefoneEmpresa     String?  @db.VarChar(20)
+  celularEmpresa      String?  @db.VarChar(20)
   responsavel  String   @db.VarChar(255)
-  endereco     String?  @db.VarChar(150)
-  numero       String?  @db.VarChar(20)
-  bairro       String?  @db.VarChar(50)
-  cidade       String?  @db.VarChar(50)
-  uf           String?  @db.Char(2)
-  cep          String?  @db.VarChar(10)
-  descricao    String?  @db.Text
+  enderecoEmpresa     String?  @db.VarChar(150)
+  numeroEmpresa       String?  @db.VarChar(20)
+  bairroEmpresa       String?  @db.VarChar(50)
+  cidadeEmpresa       String?  @db.VarChar(50)
+  ufEmpresa           String?  @db.Char(2)
+  cepEmpresa          String?  @db.VarChar(10)
+  descricaoEmpresa    String?  @db.VarChar(150)
   nome_empresa String?  @default("") @db.VarChar(155)
   id_usuarios  Int
 datacadastro DateTime @default(now())

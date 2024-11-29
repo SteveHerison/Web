@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "../ButtonForm";
 import InputForm from "../InputForm";
-import { useNavigate } from "react-router-dom"; // Para navegação
+import { useNavigate } from "react-router-dom";
 
 const FormSignUp = () => {
   const [disable] = useState(false);
@@ -15,7 +15,7 @@ const FormSignUp = () => {
   const [passwordError, setPasswordError] = useState("");
   const [passwordConfirmError, setPasswordConfirmError] = useState("");
 
-  const navigate = useNavigate(); // Para navegação após o envio do formulário
+  const navigate = useNavigate();
 
   const handleFocus = (field: string) => {
     if (field === "name") setNameError("");
@@ -30,7 +30,7 @@ const FormSignUp = () => {
     setNameError("");
     setEmailError("");
     setPasswordError("");
-    setInputFormPasswordConfirm("");
+    setPasswordConfirmError("");
 
     let errorMessage = false;
 
@@ -42,7 +42,6 @@ const FormSignUp = () => {
       setEmailError("E-mail é obrigatório.");
       errorMessage = true;
     }
-
     if (!inputFormPassword) {
       setPasswordError("Senha é obrigatória.");
       errorMessage = true;
@@ -54,8 +53,7 @@ const FormSignUp = () => {
 
     if (errorMessage) return;
 
-    // Caso tudo esteja correto, redireciona para a próxima etapa (FormSingUpComplement)
-    navigate("/cadastro"); // Altere a rota conforme necessário
+    navigate("/cadastro");
   };
 
   return (
@@ -120,9 +118,6 @@ const FormSignUp = () => {
         Aceito todas as condições
       </label>
       <div className="flex justify-between w-full gap-80">
-        {location.pathname !== "/" && (
-          <Button title="Cadastrar" type="submit" />
-        )}
         <Button title="Avançar" type="submit" />
       </div>
     </form>

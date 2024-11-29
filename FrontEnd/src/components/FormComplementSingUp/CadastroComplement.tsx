@@ -1,179 +1,235 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../ButtonForm";
 import InputForm from "../InputForm";
 import { useNavigate } from "react-router-dom";
 import AlerSucess from "../Alerts/AlerSucess";
-import { insertMaskInCnpj } from "../../functions/mask";
+import ApiCep from "../../services/apiCepService";
+
+const validateCNPJ = (cnpj: string): boolean => {
+  return /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(cnpj);
+};
 
 const FormEmpresa = () => {
   const navigate = useNavigate();
   const [disable] = useState(false);
-  const [cpfOuCnpj, setCpfOuCnpj] = useState("cpf");
-  const [inputRazaoSocial, setInputRazaoSocial] = useState("");
-  const [inputCnpj, setInputCnpj] = useState("");
-  const [inputEndereco, setInputEndereco] = useState("");
-  const [inputNumero, setInputNumero] = useState("");
-  const [inputCidade, setInputCidade] = useState("");
-  const [inputTelefone, setInputTelefone] = useState("");
-  const [inputResponsavel, setInputResponsavel] = useState("");
-  const [inputEmailRespo, setInputEmailRespo] = useState("");
-  const [inputCep, setInputCep] = useState("");
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [formData, setFormData] = useState({
+    razaoSocial: "",
+    cnpj: "",
+    endereco: "",
+    numero: "",
+    cidade: "",
+    uf: "",
+    telefone: "",
+    responsavel: "",
+    emailRespo: "",
+    cep: "",
+  });
 
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false); // Estado para controlar a exibição do alerta
   const [formErrors, setFormErrors] = useState({
     razaoSocial: "",
     cnpj: "",
     endereco: "",
+    numero: "",
     cidade: "",
+    uf: "",
     telefone: "",
     responsavel: "",
-    email: "",
+    emailRespo: "",
+    cep: "",
     terms: "",
   });
 
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showCNPJField, setShowCNPJField] = useState(false);
+
+  const buscarCep = async () => {
+    // Adiciona 'async' aqui
+    if (formData.cep === "") {
+      setFormData((prev) => ({ ...prev, cep: "" }));
+    }
+
+    try {
+      const response = await ApiCep.get(`/${formData.cep}/json/`);
+      setFormData((prev) => ({
+        ...prev,
+        endereco: response.data.logradouro,
+        bairro: response.data.bairro,
+        cidade: response.data.localidade,
+        uf: response.data.uf,
+      }));
+    } catch (error) {
+      console.log("Erro ao buscar CEP", error);
+    }
+  };
+  // Função para lidar com mudanças nos campos
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Reset de erros ao focar nos campos
   const handleFocus = (field: string) => {
     setFormErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Resetando os erros
-    setFormErrors({
-      razaoSocial: "",
-      cnpj: "",
-      endereco: "",
-      cidade: "",
-      telefone: "",
-      responsavel: "",
-      email: "",
-      terms: "",
-    });
+  // Validações centralizadas
+  const validateForm = (): boolean => {
+    const errors = { ...formErrors };
+    let isValid = true;
 
-    let errorMessage = false;
-
-    // Validações
-    if (!inputRazaoSocial) {
-      setFormErrors((prev) => ({
-        ...prev,
-        razaoSocial: "Razão Social é obrigatória.",
-      }));
-      errorMessage = true;
+    if (!formData.razaoSocial) {
+      errors.razaoSocial = "Razão Social é obrigatório.";
+      isValid = false;
     }
 
-    if (!inputCnpj) {
-      setFormErrors((prev) => ({
-        ...prev,
-        cnpj: "CNPJ inválido. Formato esperado: 00.000.000/0000-00",
-      }));
-      errorMessage = true;
+    if (showCNPJField && formData.cnpj && !validateCNPJ(formData.cnpj)) {
+      errors.cnpj = "CNPJ inválido.";
+      isValid = false;
+    }
+    if (!formData.endereco) {
+      errors.endereco = "Endereço é obrigatório.";
+      isValid = false;
     }
 
-    if (!inputEndereco) {
-      setFormErrors((prev) => ({ ...prev, endereco: "Endereço obrigatório." }));
-      errorMessage = true;
+    if (!formData.numero) {
+      errors.numero = "Numero é obrigatório.";
+      isValid = false;
+    }
+    if (!formData.cep) {
+      errors.cep = "Cep é obrigatório.";
+      isValid = false;
     }
 
-    if (!inputCidade) {
-      setFormErrors((prev) => ({ ...prev, cidade: "Cidade obrigatória." }));
-      errorMessage = true;
+    if (!formData.cidade) {
+      errors.cidade = "Cidade é obrigatório.";
+      isValid = false;
     }
 
-    if (!inputEmailRespo) {
-      setFormErrors((prev) => ({
-        ...prev,
-        email: "Formato de e-mail inválido.",
-      }));
-      errorMessage = true;
+    if (!formData.uf) {
+      errors.uf = "Uf é obrigatório.";
+      isValid = false;
     }
 
-    if (!inputResponsavel) {
-      setFormErrors((prev) => ({
-        ...prev,
-        responsavel: "Nome do responsável é obrigatório.",
-      }));
-      errorMessage = true;
+    if (!formData.endereco) {
+      errors.endereco = "Endereço é obrigatório.";
+      isValid = false;
     }
 
-    if (!inputTelefone) {
-      setFormErrors((prev) => ({
-        ...prev,
-        telefone: "Formato de telefone inválido. Exemplo: (11) 91234-5678",
-      }));
-      errorMessage = true;
+    if (!formData.numero) {
+      errors.numero = "Numero é obrigatório.";
+      isValid = false;
+    }
+
+    if (!formData.telefone) {
+      errors.telefone = "Telefone é obrigatório.";
+      isValid = false;
+    }
+
+    if (!formData.responsavel) {
+      errors.responsavel = "Responsável é obrigatório.";
+      isValid = false;
+    }
+
+    if (!formData.emailRespo) {
+      errors.emailRespo = "Email é obrigatório.";
+      isValid = false;
     }
 
     if (!termsAccepted) {
-      setFormErrors((prev) => ({
-        ...prev,
-        terms: "Você deve aceitar os termos e condições.",
-      }));
-      errorMessage = true;
+      errors.terms = "Você deve aceitar os termos e condições.";
+      isValid = false;
     }
 
-    if (errorMessage) return;
-
-    // Se não houver erros, mostrar o alerta de sucesso
-    setShowSuccessAlert(true);
-
-    // Após 3 segundos (tempo suficiente para o alerta ser visto), redireciona para o login
-    setTimeout(() => {
-      navigate("/login");
-    }, 2000); // Ajuste o tempo de acordo com o que for melhor
+    setFormErrors(errors);
+    return isValid;
   };
+
+  // Submissão do formulário
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      setShowSuccessAlert(true);
+    }
+  };
+
+  // Navegação após sucesso
+  useEffect(() => {
+    if (showSuccessAlert) {
+      const timer = setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessAlert, navigate]);
 
   return (
     <div>
       {!showSuccessAlert ? (
-        <form onSubmit={handleSubmit} className="flex flex-col" noValidate>
-          <div className="flex justify-center gap-3 item center">
-            <InputForm
-              title="Razão Social"
-              id="razaoSocial"
-              place=""
-              type="text"
-              disabled={disable}
-              value={inputRazaoSocial}
-              onChange={setInputRazaoSocial}
-              spellcheck={true}
-              onFocus={() => handleFocus("razaoSocial")}
-              errorMessage={formErrors.razaoSocial}
-            />
-
-            {cpfOuCnpj === "cnpj" && (
+        <form onSubmit={handleSubmit} className="flex flex-col " noValidate>
+          <div className="flex flex-col gap-4 my-6 space-y-3">
+            <div className="flex justify-center gap-3 item center">
               <InputForm
-                title="CNPJ"
-                id="cnpj"
+                title="Razão Social"
+                id="razaoSocial"
                 place=""
                 type="text"
                 disabled={disable}
-                value={inputCnpj}
-                onChange={(value) => setInputCnpj(insertMaskInCnpj(value))}
+                value={formData.razaoSocial}
+                onChange={(value) => handleInputChange("razaoSocial", value)}
                 spellcheck={true}
-                onFocus={() => handleFocus("cnpj")}
-                errorMessage={formErrors.cnpj}
-                required
+                onFocus={() => handleFocus("razaoSocial")}
+                errorMessage={formErrors.razaoSocial}
               />
-            )}
-            <div className="flex items-center gap-2">
-              {cpfOuCnpj !== "cpf" && (
-                <Button
-                  title="Não"
-                  id="cpf"
-                  onClick={() => setCpfOuCnpj("cpf")}
-                />
-              )}
-
-              {cpfOuCnpj !== "cnpj" && (
-                <Button
+              {showCNPJField && (
+                <InputForm
                   title="CNPJ"
                   id="cnpj"
-                  onClick={() => setCpfOuCnpj("cnpj")}
+                  place=""
+                  type="text"
+                  disabled={disable}
+                  value={formData.cnpj}
+                  onChange={(value) => handleInputChange("cnpj", value)}
+                  onFocus={() => handleFocus("cnpj")}
+                  errorMessage={formErrors.cnpj}
+                  spellcheck={true}
+                  required
                 />
               )}
+              <div className="flex items-center">
+                {!showCNPJField ? (
+                  <Button
+                    title="CNPJ"
+                    type="button"
+                    onClick={() => setShowCNPJField((prev) => !prev)}
+                  />
+                ) : (
+                  <p
+                    onClick={() => setShowCNPJField(!showCNPJField)}
+                    className="p-1 text-white bg-blue-500 rounded-full cursor-pointer"
+                  >
+                    X
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col gap-4 my-6 space-y-3">
+            <div className="flex items-center gap-3">
+              <InputForm
+                title="CEP"
+                id="cep"
+                place=""
+                type="text"
+                disabled={disable}
+                value={formData.cep}
+                onChange={(value) => handleInputChange("cep", value)}
+                spellcheck={true}
+                onFocus={() => handleFocus("cep")}
+                errorMessage={formErrors.cep}
+              />
+              <div>
+                <Button title="Buscar" onClick={buscarCep} />
+              </div>
+            </div>
             <div className="flex justify-center gap-3 item center">
               <InputForm
                 title="Endereço"
@@ -181,8 +237,8 @@ const FormEmpresa = () => {
                 place=""
                 type="text"
                 disabled={disable}
-                value={inputEndereco}
-                onChange={setInputEndereco}
+                value={formData.endereco}
+                onChange={(value) => handleInputChange("endereco", value)}
                 spellcheck={true}
                 onFocus={() => handleFocus("endereco")}
                 errorMessage={formErrors.endereco}
@@ -193,50 +249,53 @@ const FormEmpresa = () => {
                   title="Número"
                   id="numero"
                   place=""
-                  type="text"
+                  type="number"
                   disabled={disable}
-                  value={inputNumero}
-                  onChange={setInputNumero}
+                  value={formData.numero}
+                  onChange={(value) => handleInputChange("numero", value)}
                   spellcheck={true}
                   onFocus={() => handleFocus("numero")}
+                  errorMessage={formErrors.numero}
                 />
               </div>
             </div>
-            <div className="flex gap-3 ">
-              <InputForm
-                title="CEP"
-                id="nome"
-                place=""
-                type="text"
-                disabled={disable}
-                value={inputCep}
-                onChange={setInputCep}
-                spellcheck={true}
-                onFocus={() => handleFocus("name")}
-              />
-
+            <div className="flex gap-2">
               <InputForm
                 title="Cidade"
                 id="cidade"
                 place=""
                 type="text"
                 disabled={disable}
-                value={inputCidade}
-                onChange={setInputCidade}
+                value={formData.cidade}
+                onChange={(value) => handleInputChange("cidade", value)}
                 spellcheck={true}
                 onFocus={() => handleFocus("cidade")}
                 errorMessage={formErrors.cidade}
                 required={true}
               />
+              <div>
+                <InputForm
+                  title="UF"
+                  id="uf"
+                  place=""
+                  type="text"
+                  disabled={disable}
+                  value={formData.uf}
+                  onChange={(value) => handleInputChange("uf", value)}
+                  spellcheck={true}
+                  onFocus={() => handleFocus("uf")}
+                  errorMessage={formErrors.uf}
+                />
+              </div>
             </div>
             <InputForm
               title="Telefone"
               id="telefone"
               place=""
-              type="text"
+              type="number"
               disabled={disable}
-              value={inputTelefone}
-              onChange={setInputTelefone}
+              value={formData.telefone}
+              onChange={(value) => handleInputChange("telefone", value)}
               spellcheck={true}
               onFocus={() => handleFocus("telefone")}
               errorMessage={formErrors.telefone}
@@ -249,8 +308,8 @@ const FormEmpresa = () => {
               place=""
               type="text"
               disabled={disable}
-              value={inputResponsavel}
-              onChange={setInputResponsavel}
+              value={formData.responsavel}
+              onChange={(value) => handleInputChange("responsavel", value)}
               spellcheck={true}
               onFocus={() => handleFocus("responsavel")}
               errorMessage={formErrors.responsavel}
@@ -262,11 +321,11 @@ const FormEmpresa = () => {
               place=""
               type="email"
               disabled={disable}
-              value={inputEmailRespo}
-              onChange={setInputEmailRespo}
+              value={formData.emailRespo}
+              onChange={(value) => handleInputChange("emailRespo", value)}
               spellcheck={true}
               onFocus={() => handleFocus("emailRespo")}
-              errorMessage={formErrors.email}
+              errorMessage={formErrors.emailRespo}
               required
             />
           </div>
