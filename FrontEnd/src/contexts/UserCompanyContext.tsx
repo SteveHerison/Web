@@ -1,124 +1,92 @@
-import { createContext, useState } from "react";
+import { createContext, useState, ReactNode } from "react";
 import api from "../services/apiService";
 
+// Defina os tipos para o contexto
+interface Usuario {
+  nome: string;
+  email: string;
+  cpf: string;
+  senha: string;
+}
+
+interface Empresa {
+  razaoSocial: string;
+  cnpj: string;
+  endereco: string;
+  numero: string;
+  cep: string;
+  cidade: string;
+  uf: string;
+  telefone: string;
+  responsavel: string;
+  emailRespo: string;
+}
+
 interface CadastroContextType {
-  usuario: {
-    nome: string;
-    email: string;
-    cpf: string;
-    senha: string;
-  };
-  empresa: {
-    razaoSocial: string;
-    cnpj: string;
-    endereco: string;
-    numero: string;
-    cep: string;
-    cidade: string;
-    uf: string;
-    telefone: string;
-    responsavel: string;
-    emailRespo: string;
-  };
-  atualizarUsuario: (
-    campo: "nome" | "email" | "cpf" | "senha",
-    valor: string
-  ) => void;
-  atualizarEmpresa: (
-    campo:
-      | "razaoSocial"
-      | "cnpj"
-      | "endereco"
-      | "numero"
-      | "cep"
-      | "cidade"
-      | "uf"
-      | "telefone"
-      | "responsavel"
-      | "emailRespo",
-    valor: string
-  ) => void;
+  usuario: Usuario;
+  empresa: Empresa;
+  atualizarUsuario: (campo: keyof Usuario, valor: string) => void;
+  atualizarEmpresa: (campo: keyof Empresa, valor: string) => void;
   cadastrar: () => void;
 }
-const CadastroContext = createContext<CadastroContextType | undefined>(
-  undefined
-);
 
-export const CadastroProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [usuario, setUsuario] = useState({
-    nome: "",
-    email: "",
-    cpf: "",
-    senha: "",
-  });
+// Estado inicial
+const usuarioInicial: Usuario = {
+  nome: "",
+  email: "",
+  cpf: "",
+  senha: "",
+};
 
-  const [empresa, setEmpresa] = useState({
-    razaoSocial: "",
-    cnpj: "",
-    endereco: "",
-    numero: "",
-    cep: "",
-    cidade: "",
-    uf: "",
-    telefone: "",
-    responsavel: "",
-    emailRespo: "",
-  });
+const empresaInicial: Empresa = {
+  razaoSocial: "",
+  cnpj: "",
+  endereco: "",
+  numero: "",
+  cep: "",
+  cidade: "",
+  uf: "",
+  telefone: "",
+  responsavel: "",
+  emailRespo: "",
+};
 
-  const atualizarUsuario = (
-    campo: "nome" | "email" | "cpf" | "senha",
-    valor: string
-  ) => {
-    setUsuario((prev) => ({
-      ...prev,
-      [campo]: valor,
-    }));
+// Criação do contexto
+export const CadastroContext = createContext<CadastroContextType | null>(null);
+
+export const CadastroProvider = ({ children }: { children: ReactNode }) => {
+  const [usuario, setUsuario] = useState<Usuario>(usuarioInicial);
+  const [empresa, setEmpresa] = useState<Empresa>(empresaInicial);
+
+  const atualizarUsuario = (campo: keyof Usuario, valor: string) => {
+    setUsuario((prev) => ({ ...prev, [campo]: valor }));
   };
 
-  const atualizarEmpresa = (
-    campo:
-      | "razaoSocial"
-      | "cnpj"
-      | "endereco"
-      | "numero"
-      | "cep"
-      | "cidade"
-      | "uf"
-      | "telefone"
-      | "responsavel"
-      | "emailRespo",
-    valor: string
-  ) => {
-    setEmpresa((prev) => ({
-      ...prev,
-      [campo]: valor,
-    }));
+  const atualizarEmpresa = (campo: keyof Empresa, valor: string) => {
+    setEmpresa((prev) => ({ ...prev, [campo]: valor }));
   };
 
   const cadastrar = async () => {
     const dados = { usuario, empresa };
+    console.log("Enviando dados para o backend:", dados);
 
+    // Simulação de envio de dados para o backend
     try {
-      const response = await fetch(`${api}/createUserAndCompany`, {
+      const response = await fetch(`${api}/cadastrar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(dados),
       });
-      const result = await response.json();
+
       if (response.ok) {
         alert("Cadastro realizado com sucesso!");
       } else {
-        alert(result.message || "Erro ao cadastrar!");
+        alert("Erro ao cadastrar.");
       }
     } catch (error) {
-      console.error("Erro ao fazer cadastro:", error);
-      alert("Erro ao cadastrar!");
+      console.error("Erro ao cadastrar:", error);
     }
   };
 

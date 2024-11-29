@@ -4,7 +4,9 @@ type CadastroComponentProps = {
   showSuccessAlert: () => void; // Defina o tipo da prop
 };
 
-const CadatroEmpresa: React.FC<CadastroComponentProps> = ({ showSuccessAlert }) => {
+const CadatroEmpresa: React.FC<CadastroComponentProps> = ({
+  showSuccessAlert,
+}) => {
   return (
     <section>
       <figure className="flex flex-col gap-5 pb-3">
