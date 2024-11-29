@@ -7,11 +7,13 @@ const FormSignUp = () => {
   const [disable] = useState(false);
   const [inputFormName, setInputFormName] = useState("");
   const [inputFormEmail, setInputFormEmail] = useState("");
+  const [inputFormCpf, setInputFormCpf] = useState("");
   const [inputFormPassword, setInputFormPassword] = useState("");
   const [inputFormPasswordConfirm, setInputFormPasswordConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [cpfError, setCpfError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordConfirmError, setPasswordConfirmError] = useState("");
 
@@ -20,6 +22,7 @@ const FormSignUp = () => {
   const handleFocus = (field: string) => {
     if (field === "name") setNameError("");
     if (field === "email") setEmailError("");
+    if (field === "cpf") setCpfError("");
     if (field === "password") setPasswordError("");
     if (field === "passwordConfirm") setPasswordConfirmError("");
   };
@@ -29,6 +32,7 @@ const FormSignUp = () => {
     setError(null);
     setNameError("");
     setEmailError("");
+    setCpfError("");
     setPasswordError("");
     setPasswordConfirmError("");
 
@@ -40,6 +44,10 @@ const FormSignUp = () => {
     }
     if (!inputFormEmail) {
       setEmailError("E-mail é obrigatório.");
+      errorMessage = true;
+    }
+    if (!inputFormCpf) {
+      setEmailError("Cpf é obrigatório.");
       errorMessage = true;
     }
     if (!inputFormPassword) {
@@ -85,6 +93,18 @@ const FormSignUp = () => {
           place=""
         />
         <InputForm
+          title="CPF"
+          id="cpf"
+          type="text"
+          disabled={disable}
+          value={inputFormCpf}
+          onChange={setInputFormCpf}
+          spellcheck={true}
+          onFocus={() => handleFocus("cpf")}
+          errorMessage={cpfError}
+          place=""
+        />
+        <InputForm
           title="Senha"
           id="password"
           type="password"
@@ -118,7 +138,7 @@ const FormSignUp = () => {
         Aceito todas as condições
       </label>
       <div className="flex justify-between w-full gap-80">
-        <Button title="Avançar" type="submit" />
+        <Button title="Avançar" />
       </div>
     </form>
   );
