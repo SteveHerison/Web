@@ -1,132 +1,137 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Button from "../ButtonForm";
 import InputForm from "../InputForm";
 import { useNavigate } from "react-router-dom";
+import { CadastroContext } from "../../contexts/UserCompanyContext";
 
 const FormSignUp = () => {
   const [disable] = useState(false);
-  const [inputFormName, setInputFormName] = useState("");
-  const [inputFormEmail, setInputFormEmail] = useState("");
-  const [inputFormCpf, setInputFormCpf] = useState("");
-  const [inputFormPassword, setInputFormPassword] = useState("");
-  const [inputFormPasswordConfirm, setInputFormPasswordConfirm] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [nameError, setNameError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [cpfError, setCpfError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordConfirmError, setPasswordConfirmError] = useState("");
-
   const navigate = useNavigate();
+  const context = useContext(CadastroContext);
 
+  if (!context) {
+    throw new Error("FormSignUp deve estar dentro de CadastroProvider");
+  }
+
+  const { usuario, atualizarUsuario } = context;
+  const [formErrors, setFormErrors] = useState({
+    nome: "",
+    email: "",
+    cpf: "",
+    senha: "",
+    confirmSenha: "",
+  });
   const handleFocus = (field: string) => {
-    if (field === "name") setNameError("");
-    if (field === "email") setEmailError("");
-    if (field === "cpf") setCpfError("");
-    if (field === "password") setPasswordError("");
-    if (field === "passwordConfirm") setPasswordConfirmError("");
+    setFormErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const validateForm = (): boolean => {
+    let isValid = true;
+    const errors = { ...formErrors };
+
+    if (!usuario.nome) {
+      errors.nome = "Nome é obrigatório.";
+      isValid = false;
+    }
+    if (!usuario.email) {
+      errors.email = "E-mail é obrigatório.";
+      isValid = false;
+    }
+    if (!usuario.cpf) {
+      errors.cpf = "Cpf é obrigatório.";
+      isValid = false;
+    }
+    if (!usuario.senha) {
+      errors.senha = "Senha é obrigatória.";
+      isValid = false;
+    }
+    if (usuario.confirmSenha !== usuario.senha) {
+      errors.confirmSenha = "Confirmação de senha não coincide.";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setNameError("");
-    setEmailError("");
-    setCpfError("");
-    setPasswordError("");
-    setPasswordConfirmError("");
 
-    let errorMessage = false;
-
-    if (!inputFormName) {
-      setNameError("Nome é obrigatório.");
-      errorMessage = true;
+    if (validateForm()) {
+      navigate("/cadastro");
     }
-    if (!inputFormEmail) {
-      setEmailError("E-mail é obrigatório.");
-      errorMessage = true;
-    }
-    if (!inputFormCpf) {
-      setEmailError("Cpf é obrigatório.");
-      errorMessage = true;
-    }
-    if (!inputFormPassword) {
-      setPasswordError("Senha é obrigatória.");
-      errorMessage = true;
-    }
-    if (!inputFormPasswordConfirm) {
-      setPasswordConfirmError("Confirmação de senha é obrigatória.");
-      errorMessage = true;
-    }
-
-    if (errorMessage) return;
-
-    navigate("/cadastro");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col">
-      {error && <p className="mb-5 text-center text-red-500">{error}</p>}
+    <form onSubmit={handleSubmit} className="flex flex-col" noValidate>
+      {formErrors.nome && (
+        <p className="mb-5 text-center text-red-500">{formErrors.nome}</p>
+      )}
       <div className="flex flex-col gap-4 my-5 space-y-3">
         <InputForm
           title="Nome"
           id="nome"
           type="text"
-          disabled={disable}
-          value={inputFormName}
-          onChange={setInputFormName}
-          spellcheck={true}
-          onFocus={() => handleFocus("name")}
-          errorMessage={nameError}
           place=""
+          spellcheck={true}
+          disabled={disable}
+          value={usuario.nome}
+          onChange={(value) => atualizarUsuario("nome", value)}
+          onFocus={() => handleFocus("nome")}
+          errorMessage={formErrors.nome}
+          required
         />
         <InputForm
           title="E-mail"
           id="email"
           type="email"
-          disabled={disable}
-          value={inputFormEmail}
-          onChange={setInputFormEmail}
-          spellcheck={true}
-          onFocus={() => handleFocus("email")}
-          errorMessage={emailError}
           place=""
+          disabled={disable}
+          spellcheck={true}
+          value={usuario.email}
+          onChange={(value) => atualizarUsuario("email", value)}
+          onFocus={() => handleFocus("email")}
+          errorMessage={formErrors.email}
+          required
         />
         <InputForm
           title="CPF"
           id="cpf"
           type="text"
-          disabled={disable}
-          value={inputFormCpf}
-          onChange={setInputFormCpf}
-          spellcheck={true}
-          onFocus={() => handleFocus("cpf")}
-          errorMessage={cpfError}
           place=""
+          spellcheck={true}
+          disabled={disable}
+          value={usuario.cpf}
+          onChange={(value) => atualizarUsuario("cpf", value)}
+          onFocus={() => handleFocus("cpf")}
+          errorMessage={formErrors.cpf}
+          required
         />
         <InputForm
           title="Senha"
-          id="password"
+          id="senha"
           type="password"
-          disabled={disable}
-          value={inputFormPassword}
-          onChange={setInputFormPassword}
-          spellcheck={true}
-          onFocus={() => handleFocus("password")}
-          errorMessage={passwordError}
           place=""
+          spellcheck={true}
+          disabled={disable}
+          value={usuario.senha}
+          onChange={(value) => atualizarUsuario("senha", value)}
+          onFocus={() => handleFocus("senha")}
+          errorMessage={formErrors.senha}
+          required
         />
         <InputForm
           title="Confirmação da senha"
-          id="passwordConfirm"
+          id="confirmSenha"
           type="password"
-          disabled={disable}
-          value={inputFormPasswordConfirm}
-          onChange={setInputFormPasswordConfirm}
-          spellcheck={true}
-          onFocus={() => handleFocus("passwordConfirm")}
-          errorMessage={passwordConfirmError}
           place=""
+          spellcheck={true}
+          disabled={disable}
+          value={usuario.confirmSenha}
+          onChange={(value) => atualizarUsuario("confirmSenha", value)}
+          onFocus={() => handleFocus("confirmSenha")}
+          errorMessage={formErrors.confirmSenha}
+          required
         />
       </div>
       <label htmlFor="terms" className="flex items-center gap-2">

@@ -1,10 +1,11 @@
-import axios from "axios";
-
-// URL base do backend
-const API_URL = "http://localhost:3000";
-
-const api = axios.create({
-  baseURL: API_URL,
-});
-
-export default api;
+// apiService.ts
+export interface Response {
+  token?: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  error: boolean;
+  message?: string;
+}

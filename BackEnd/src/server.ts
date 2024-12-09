@@ -1,15 +1,17 @@
 import Express, { Request, Response } from "express";
+import cors from "cors";
 import UserAndCompanyController from "./controller/UserAndCompanyController";
 
 const app = Express();
-app.use(Express.json());
 const PORT = 3000;
+
+// Configura o middleware CORS
+app.use(cors({ origin: "http://localhost:5173" }));
+app.use(Express.json());
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Hello World" });
 });
-
-// Wrapper na rota POST
 
 app.post("/createUserAndCompany", async (req: Request, res: Response) => {
   await UserAndCompanyController.registerUserAndCompany(req, res);

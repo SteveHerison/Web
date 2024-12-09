@@ -28,6 +28,7 @@ export default {
         where: { email },
       });
       if (existingUserEmail) {
+        console.error("Erro: E-mail do usuário já está em uso.");
         return response.status(400).json({
           error: true,
           message: "O e-mail do usuário fornecido já está em uso.",
@@ -39,6 +40,7 @@ export default {
         where: { cpf },
       });
       if (existingUserCpf) {
+        console.error("Erro: CPF já está em uso.");
         return response.status(400).json({
           error: true,
           message: "O CPF fornecido já está em uso.",
@@ -50,6 +52,7 @@ export default {
         where: { cnpj: String(cnpj) },
       });
       if (existingCompanyCnpj) {
+        console.error("Erro: CNPJ já está em uso.");
         return response.status(400).json({
           error: true,
           message: "O CNPJ fornecido já está em uso.",
@@ -61,6 +64,7 @@ export default {
         where: { emailEmpresa: email },
       });
       if (existingCompanyEmail) {
+        console.error("Erro: E-mail da empresa já está em uso.");
         return response.status(400).json({
           error: true,
           message: "O e-mail da empresa fornecido já está em uso.",
@@ -72,6 +76,7 @@ export default {
         where: { razaosocial },
       });
       if (existingCompanyRazaosocial) {
+        console.error("Erro: Razão social já está em uso.");
         return response.status(400).json({
           error: true,
           message: "A razão social fornecida já está em uso.",
@@ -82,8 +87,8 @@ export default {
       const existingCompanyNomefantasia = await prisma.empresa.findFirst({
         where: { nomefantasia },
       });
-
       if (existingCompanyNomefantasia) {
+        console.error("Erro: Nome fantasia já está em uso.");
         return response.status(400).json({
           error: true,
           message: "O nome fantasia fornecido já está em uso.",
@@ -92,10 +97,10 @@ export default {
 
       // 7. Verificar se o nome da empresa já está em uso
       const existingCompanyNomeEmpresa = await prisma.empresa.findFirst({
-        where: { nome_empresa: nome_empresa }, // Aqui você pode buscar por qualquer campo
+        where: { nome_empresa },
       });
-
       if (existingCompanyNomeEmpresa) {
+        console.error("Erro: Nome da empresa já está em uso.");
         return response.status(400).json({
           error: true,
           message: "O nome da empresa fornecido já está em uso.",
@@ -148,6 +153,7 @@ export default {
         company: companyResponse,
       });
     } catch (error) {
+      console.error("Erro ao cadastrar usuário e empresa:", error);
       return response.status(500).json({
         error: true,
         message: error instanceof Error ? error.message : "Erro desconhecido",

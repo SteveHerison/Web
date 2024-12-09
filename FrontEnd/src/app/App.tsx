@@ -1,11 +1,14 @@
+import { ModalProvider } from "../contexts/ModalContext";
 import MainRouter from "../routers/RouterMain";
 import Layout from "./layout";
 
 const App = () => {
   return (
-    <Layout>
-      <Content />
-    </Layout>
+    <ModalProvider>
+      <Layout>
+        <Content />
+      </Layout>
+    </ModalProvider>
   );
 };
 
