@@ -1,19 +1,14 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import Button from "../ButtonForm";
 import InputForm from "../InputForm";
+import { useUser } from "../../hooks/useUser";
+import api from "../../services/apiService";
 import { useNavigate } from "react-router-dom";
-import { CadastroContext } from "../../contexts/UserCompanyContext";
 
 const FormSignUp = () => {
   const [disable] = useState(false);
+  const { usuario, setUsuario, setShowAlert } = useUser();
   const navigate = useNavigate();
-  const context = useContext(CadastroContext);
-
-  if (!context) {
-    throw new Error("FormSignUp deve estar dentro de CadastroProvider");
-  }
-
-  const { usuario, atualizarUsuario } = context;
   const [formErrors, setFormErrors] = useState({
     nome: "",
     email: "",
@@ -21,52 +16,66 @@ const FormSignUp = () => {
     senha: "",
     confirmSenha: "",
   });
+
   const handleFocus = (field: string) => {
     setFormErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const validateForm = (): boolean => {
-    let isValid = true;
-    const errors = { ...formErrors };
-
-    if (!usuario.nome) {
-      errors.nome = "Nome é obrigatório.";
-      isValid = false;
-    }
-    if (!usuario.email) {
-      errors.email = "E-mail é obrigatório.";
-      isValid = false;
-    }
-    if (!usuario.cpf) {
-      errors.cpf = "Cpf é obrigatório.";
-      isValid = false;
-    }
-    if (!usuario.senha) {
-      errors.senha = "Senha é obrigatória.";
-      isValid = false;
-    }
-    if (usuario.confirmSenha !== usuario.senha) {
-      errors.confirmSenha = "Confirmação de senha não coincide.";
-      isValid = false;
-    }
-
-    setFormErrors(errors);
-    return isValid;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      navigate("/cadastro");
+    if (!usuario) return;
+
+    // Validações básicas
+    const errors = {
+      nome: usuario.nome ? "" : "O nome é obrigatório",
+      email: usuario.email?.includes("@") ? "" : "E-mail inválido",
+      cpf: usuario.cpf?.length === 11 ? "" : "CPF deve ter 11 dígitos",
+      senha:
+        usuario.senha?.length >= 6
+          ? ""
+          : "Senha deve ter pelo menos 6 caracteres",
+      confirmSenha:
+        usuario.senha === usuario.confirmSenha ? "" : "As senhas não coincidem",
+    };
+    setFormErrors(errors);
+
+    // Verifica se há erros
+    const hasErrors = Object.values(errors).some((error) => error);
+    if (hasErrors) return;
+
+    try {
+      // Envia os dados para o backend
+      const response = await api.post("/createUser", {
+        nome: usuario.nome,
+        email: usuario.email,
+        cpf: usuario.cpf,
+        senha: usuario.senha,
+      });
+
+      // Limpa o formulário após o cadastro
+      setUsuario({
+        nome: "",
+        email: "",
+        cpf: "",
+        senha: "",
+        confirmSenha: "",
+      });
+
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+        navigate("/login");
+      }, 2000);
+    } catch (error) {
+      alert(
+        `Erro ao cadastrar usuário. Verifique os dados e tente novamente. ${error}`
+      );
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col" noValidate>
-      {formErrors.nome && (
-        <p className="mb-5 text-center text-red-500">{formErrors.nome}</p>
-      )}
+    <form className="flex flex-col" noValidate onSubmit={handleSubmit}>
       <div className="flex flex-col gap-4 my-5 space-y-3">
         <InputForm
           title="Nome"
@@ -75,8 +84,8 @@ const FormSignUp = () => {
           place=""
           spellcheck={true}
           disabled={disable}
-          value={usuario.nome}
-          onChange={(value) => atualizarUsuario("nome", value)}
+          value={usuario.nome || ""}
+          onChange={(value) => setUsuario({ ...usuario, nome: value })}
           onFocus={() => handleFocus("nome")}
           errorMessage={formErrors.nome}
           required
@@ -88,8 +97,8 @@ const FormSignUp = () => {
           place=""
           disabled={disable}
           spellcheck={true}
-          value={usuario.email}
-          onChange={(value) => atualizarUsuario("email", value)}
+          value={usuario.email || ""}
+          onChange={(value) => setUsuario({ ...usuario, email: value })}
           onFocus={() => handleFocus("email")}
           errorMessage={formErrors.email}
           required
@@ -101,8 +110,8 @@ const FormSignUp = () => {
           place=""
           spellcheck={true}
           disabled={disable}
-          value={usuario.cpf}
-          onChange={(value) => atualizarUsuario("cpf", value)}
+          value={usuario.cpf || ""}
+          onChange={(value) => setUsuario({ ...usuario, cpf: value })}
           onFocus={() => handleFocus("cpf")}
           errorMessage={formErrors.cpf}
           required
@@ -114,8 +123,8 @@ const FormSignUp = () => {
           place=""
           spellcheck={true}
           disabled={disable}
-          value={usuario.senha}
-          onChange={(value) => atualizarUsuario("senha", value)}
+          value={usuario.senha || ""}
+          onChange={(value) => setUsuario({ ...usuario, senha: value })}
           onFocus={() => handleFocus("senha")}
           errorMessage={formErrors.senha}
           required
@@ -127,26 +136,18 @@ const FormSignUp = () => {
           place=""
           spellcheck={true}
           disabled={disable}
-          value={usuario.confirmSenha}
-          onChange={(value) => atualizarUsuario("confirmSenha", value)}
+          value={usuario.confirmSenha || ""}
+          onChange={(value) => setUsuario({ ...usuario, confirmSenha: value })}
           onFocus={() => handleFocus("confirmSenha")}
           errorMessage={formErrors.confirmSenha}
           required
         />
       </div>
-      <label htmlFor="terms" className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="terms"
-          className="w-4 h-4 p-2 my-5 outline-none"
-        />
-        Aceito todas as condições
-      </label>
+
       <div className="flex justify-between w-full gap-80">
         <Button title="Avançar" />
       </div>
     </form>
   );
 };
-
 export default FormSignUp;

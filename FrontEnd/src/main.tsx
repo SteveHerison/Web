@@ -3,14 +3,14 @@ import { createRoot } from "react-dom/client";
 import App from "./app/App.tsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
-import { CadastroProvider } from "./contexts/UserCompanyContext.tsx";
+import { UserProvider } from "./contexts/UserContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <CadastroProvider>
+      <UserProvider>
         <App />
-      </CadastroProvider>
+      </UserProvider>
     </BrowserRouter>
   </StrictMode>
 );

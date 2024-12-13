@@ -1,6 +1,6 @@
 import Express, { Request, Response } from "express";
 import cors from "cors";
-import UserAndCompanyController from "./controller/UserAndCompanyController";
+import UserController from "./controller/UserController";
 
 const app = Express();
 const PORT = 3000;
@@ -9,12 +9,20 @@ const PORT = 3000;
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(Express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "Hello World" });
+app.get("/Users", async (req: Request, res: Response) => {
+  await UserController.getUsers(req, res);
 });
 
-app.post("/createUserAndCompany", async (req: Request, res: Response) => {
-  await UserAndCompanyController.registerUserAndCompany(req, res);
+app.post("/createUser", async (req: Request, res: Response) => {
+  await UserController.registerUser(req, res);
+});
+
+app.put("/updateUser/:id", async (req: Request, res: Response) => {
+  await UserController.updateUser(req, res);
+});
+
+app.post("/login", async (req: Request, res: Response) => {
+  await UserController.loginUser(req, res);
 });
 
 app.listen(PORT, () => {

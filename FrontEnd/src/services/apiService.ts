@@ -1,11 +1,7 @@
-// apiService.ts
-export interface Response {
-  token?: string;
-  user?: {
-    id: number;
-    name: string;
-    email: string;
-  };
-  error: boolean;
-  message?: string;
-}
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://localhost:3000",
+});
+
+export default api;

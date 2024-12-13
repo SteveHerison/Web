@@ -1,94 +1,89 @@
-// FormSignIn.tsx
 import { useState } from "react";
 import Button from "../ButtonForm";
 import InputForm from "../InputForm";
-import { EsteticaApi } from "../../helpers/EsteticaAPI";
-import { doLogin } from "../../helpers/AuthHandle";
+import { useUser } from "../../hooks/useUser";
+import api from "../../services/apiService";
+import { useNavigate } from "react-router-dom";
 
 const FormSignIn = () => {
-  const [inputFormEmail, setInputFormEmail] = useState("");
-  const [inputFormPassword, setInputFormPassword] = useState("");
+  const navigate = useNavigate();
   const [disable] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState("");
+  const { login } = useUser();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberPassword, setRememberPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
+  const [error, setError] = useState({
+    email: "",
+    senha: "",
+  });
 
   const handleFocus = (field: string) => {
-    if (field === "email") setEmailError("");
-    if (field === "password") setPasswordError("");
+    setError((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
-    setEmailError("");
-    setPasswordError("");
-
-    if (!inputFormEmail || !inputFormPassword) {
-      setEmailError(!inputFormEmail ? "O campo de e-mail é obrigatório." : "");
-      setPasswordError(
-        !inputFormPassword ? "O campo de senha é obrigatório." : ""
-      );
-      return;
-    }
 
     try {
-      const json = await EsteticaApi(inputFormEmail, inputFormPassword);
+      const response = await api.post("/login", { email, senha: password });
+      const { token, user } = response.data;
 
-      if (json.error) {
-        setError(json.message || "Erro desconhecido.");
-      } else {
-        doLogin(json.token!, rememberPassword);
-        window.location.href = "/";
-      }
-    } catch (err) {
-      console.error(err); // Para depuração
-      setError("Erro ao tentar fazer login. Tente novamente."); // Corrigido para string
+      login(user, token);
+
+      navigate("/home");
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      setError((prev) => ({
+        ...prev,
+        email: "Erro ao fazer login. Verifique suas credenciais.",
+      }));
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      {error && <p className="mb-5 text-center text-red-500">{error}</p>}
+      {error.email && (
+        <p className="mb-5 text-center text-red-500">{error.email}</p>
+      )}
+
       <div className="flex flex-col gap-4 my-5 space-y-3">
         <InputForm
           title="E-mail"
           id="email"
-          place=""
           type="text"
           disabled={disable}
-          value={inputFormEmail}
-          onChange={setInputFormEmail}
+          value={email}
+          onChange={setEmail}
           spellcheck={true}
           onFocus={() => handleFocus("email")}
-          errorMessage={emailError}
+          errorMessage={error.email}
         />
         <InputForm
           title="Senha"
           id="password"
-          place=""
           type="password"
           disabled={disable}
-          value={inputFormPassword}
-          onChange={setInputFormPassword}
+          value={password}
+          onChange={setPassword}
           spellcheck={true}
-          onFocus={() => handleFocus("password")}
-          errorMessage={passwordError}
+          onFocus={() => handleFocus("senha")}
+          errorMessage={error.senha}
         />
       </div>
+
       <label htmlFor="terms" className="flex items-center gap-2">
         <input
           type="checkbox"
           id="terms"
-          className="w-4 h-4 p-2 my-5 outline-none"
+          className="w-4 h-4"
           checked={rememberPassword}
           onChange={() => setRememberPassword(!rememberPassword)}
         />
-        Aceito todas as
+        Lembrar-me
       </label>
-      <div className="px-10">
-        <Button title="Entrar" type="submit" />
+
+      <div className="flex justify-between w-full mt-4 gap-80">
+        <Button title="Entrar" />
       </div>
     </form>
   );

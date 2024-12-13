@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import SingInComponent from "../ComponentsForm/SingInComponent";
 import SingUpComponent from "../ComponentsForm/singUpComponent";
 import Logo from "../../assets/logo.png";
-import CadatroEmpresa from "../FormComplementSingUp/CadastroComponent";
+import SingUp from "../../pages/singUp";
 
 // Defina o tipo das props
 type AuthPageProps = {
@@ -11,10 +11,7 @@ type AuthPageProps = {
   showSuccessAlert?: () => void;
 };
 
-const AuthPage: React.FC<AuthPageProps> = ({
-  initialForm,
-  showSuccessAlert,
-}) => {
+const AuthPage: React.FC<AuthPageProps> = ({ initialForm }) => {
   const [showForm, setShowForm] = useState(false);
   const location = useLocation();
 
@@ -32,9 +29,7 @@ const AuthPage: React.FC<AuthPageProps> = ({
     } else if (location.pathname === "/login") {
       return <SingInComponent />;
     } else if (location.pathname === "/cadastro") {
-      return (
-        <CadatroEmpresa showSuccessAlert={showSuccessAlert ?? (() => {})} />
-      );
+      <SingUp />;
     }
     return null;
   };

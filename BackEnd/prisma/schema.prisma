@@ -7,47 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model empresa {
-  idempresa        Int      @id @default(autoincrement())
-  datafuncao       DateTime @db.Date
-  razaosocial      String   @unique @db.VarChar(250)
-  nomefantasia     String   @db.VarChar(250)
-  cnpj             String   @unique @db.VarChar(18)
-  responsavel      String   @db.VarChar(255)
-  nome_empresa     String?  @default("") @db.VarChar(155)
-  id_usuarios      Int
-  datacadastro     DateTime @default(now())
-  bairroEmpresa    String?  @db.VarChar(50)
-  celularEmpresa   String?  @db.VarChar(20)
-  cepEmpresa       String?  @db.VarChar(10)
-  cidadeEmpresa    String?  @db.VarChar(50)
-  descricaoEmpresa String?  @db.VarChar(150)
-  emailEmpresa     String   @unique @db.VarChar(100)
-  enderecoEmpresa  String?  @db.VarChar(150)
-  numeroEmpresa    String?  @db.VarChar(20)
-  telefoneEmpresa  String?  @db.VarChar(20)
-  ufEmpresa        String?  @db.Char(2)
-  usuario          usuarios @relation(fields: [id_usuarios], references: [id])
-
-  @@index([id_usuarios], map: "empresa_id_usuarios_fkey")
-}
-
 model usuarios {
-  id           Int       @id @default(autoincrement())
+  id           Int       @id @default(autoincrement()) @map("_id")
   nome         String    @db.VarChar(100)
   email        String    @unique @default("") @db.VarChar(100)
-  cpf          String    @unique @default("0") @db.VarChar(18)
-  senha        String    @default("0") @db.VarChar(255)
+  cpf          String    @unique @default("") @db.VarChar(18)
+  senha        String    @default("") @db.VarChar(255)
   datacadastro DateTime  @db.Date
-  celular      String?   @default("0") @db.VarChar(20)
-  telefone     String?   @default("0") @db.VarChar(20)
-  endereco     String?   @default("") @db.VarChar(150)
-  cep          String?   @default("0") @db.VarChar(10)
-  uf           String?   @default("0") @db.Char(2)
-  cidade       String?   @default("") @db.VarChar(50)
-  numero       String?   @default("0") @db.VarChar(20)
-  bairro       String?   @default("") @db.VarChar(50)
-  empresas     empresa[]
 
   @@index([cpf], map: "cpf")
   @@index([email], map: "email")
