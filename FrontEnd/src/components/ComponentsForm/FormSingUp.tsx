@@ -53,6 +53,8 @@ const FormSignUp = () => {
         senha: usuario.senha,
       });
 
+      console.log("Usuário cadastrado com sucesso:", response.data);
+
       // Limpa o formulário após o cadastro
       setUsuario({
         nome: "",
