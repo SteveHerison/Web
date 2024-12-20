@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { Usuario } from "../types/userType";
 import api from "../services/apiService";
 
@@ -31,9 +31,25 @@ const usuarioInicial: Usuarios = {
 const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [usuario, setUsuario] = useState<Usuarios>(usuarioInicial);
-  const [token, setToken] = useState<string | null>(null);
+  // Inicializar o estado com os dados do localStorage
+  const [usuario, setUsuario] = useState<Usuarios>(() => {
+    const storedUser = localStorage.getItem("usuario");
+    return storedUser ? JSON.parse(storedUser) : usuarioInicial;
+  });
+
+  const [token, setToken] = useState<string | null>(() => {
+    const storedToken = localStorage.getItem("token");
+    return storedToken || null;
+  });
+
   const [showAlert, setShowAlert] = useState(false);
+
+  // Configurar o token no Axios quando o componente for montado
+  useEffect(() => {
+    if (token) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+  }, [token]);
 
   const login = (user: Usuarios, token: string) => {
     setUsuario(user);

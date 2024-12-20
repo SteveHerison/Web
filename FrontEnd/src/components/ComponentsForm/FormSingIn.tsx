@@ -36,16 +36,13 @@ const FormSignIn = () => {
       setError((prev) => ({
         ...prev,
         email: "Erro ao fazer login. Verifique suas credenciais.",
+        senha: "Erro ao fazer login. Verifique suas credenciais.",
       }));
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      {error.email && (
-        <p className="mb-5 text-center text-red-500">{error.email}</p>
-      )}
-
       <div className="flex flex-col gap-4 my-5 space-y-3">
         <InputForm
           title="E-mail"

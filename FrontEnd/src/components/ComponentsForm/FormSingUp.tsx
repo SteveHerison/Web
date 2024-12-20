@@ -7,8 +7,18 @@ import { useNavigate } from "react-router-dom";
 
 const FormSignUp = () => {
   const [disable] = useState(false);
-  const { usuario, setUsuario, setShowAlert } = useUser();
+  const { setShowAlert } = useUser(); // Não usamos o estado global do usuário aqui
   const navigate = useNavigate();
+
+  // Estado local para o formulário
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    cpf: "",
+    senha: "",
+    confirmSenha: "",
+  });
+
   const [formErrors, setFormErrors] = useState({
     nome: "",
     email: "",
@@ -24,19 +34,19 @@ const FormSignUp = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!usuario) return;
-
     // Validações básicas
     const errors = {
-      nome: usuario.nome ? "" : "O nome é obrigatório",
-      email: usuario.email?.includes("@") ? "" : "E-mail inválido",
-      cpf: usuario.cpf?.length === 11 ? "" : "CPF deve ter 11 dígitos",
+      nome: formData.nome ? "" : "O nome é obrigatório",
+      email: formData.email?.includes("@") ? "" : "E-mail inválido",
+      cpf: formData.cpf?.length === 11 ? "" : "CPF deve ter 11 dígitos",
       senha:
-        usuario.senha?.length >= 6
+        formData.senha?.length >= 6
           ? ""
           : "Senha deve ter pelo menos 6 caracteres",
       confirmSenha:
-        usuario.senha === usuario.confirmSenha ? "" : "As senhas não coincidem",
+        formData.senha === formData.confirmSenha
+          ? ""
+          : "As senhas não coincidem",
     };
     setFormErrors(errors);
 
@@ -47,16 +57,16 @@ const FormSignUp = () => {
     try {
       // Envia os dados para o backend
       const response = await api.post("/createUser", {
-        nome: usuario.nome,
-        email: usuario.email,
-        cpf: usuario.cpf,
-        senha: usuario.senha,
+        nome: formData.nome,
+        email: formData.email,
+        cpf: formData.cpf,
+        senha: formData.senha,
       });
 
       console.log("Usuário cadastrado com sucesso:", response.data);
 
       // Limpa o formulário após o cadastro
-      setUsuario({
+      setFormData({
         nome: "",
         email: "",
         cpf: "",
@@ -86,8 +96,8 @@ const FormSignUp = () => {
           place=""
           spellcheck={true}
           disabled={disable}
-          value={usuario.nome || ""}
-          onChange={(value) => setUsuario({ ...usuario, nome: value })}
+          value={formData.nome}
+          onChange={(value) => setFormData({ ...formData, nome: value })}
           onFocus={() => handleFocus("nome")}
           errorMessage={formErrors.nome}
           required
@@ -99,8 +109,8 @@ const FormSignUp = () => {
           place=""
           disabled={disable}
           spellcheck={true}
-          value={usuario.email || ""}
-          onChange={(value) => setUsuario({ ...usuario, email: value })}
+          value={formData.email}
+          onChange={(value) => setFormData({ ...formData, email: value })}
           onFocus={() => handleFocus("email")}
           errorMessage={formErrors.email}
           required
@@ -112,8 +122,8 @@ const FormSignUp = () => {
           place=""
           spellcheck={true}
           disabled={disable}
-          value={usuario.cpf || ""}
-          onChange={(value) => setUsuario({ ...usuario, cpf: value })}
+          value={formData.cpf}
+          onChange={(value) => setFormData({ ...formData, cpf: value })}
           onFocus={() => handleFocus("cpf")}
           errorMessage={formErrors.cpf}
           required
@@ -125,8 +135,8 @@ const FormSignUp = () => {
           place=""
           spellcheck={true}
           disabled={disable}
-          value={usuario.senha || ""}
-          onChange={(value) => setUsuario({ ...usuario, senha: value })}
+          value={formData.senha}
+          onChange={(value) => setFormData({ ...formData, senha: value })}
           onFocus={() => handleFocus("senha")}
           errorMessage={formErrors.senha}
           required
@@ -138,8 +148,10 @@ const FormSignUp = () => {
           place=""
           spellcheck={true}
           disabled={disable}
-          value={usuario.confirmSenha || ""}
-          onChange={(value) => setUsuario({ ...usuario, confirmSenha: value })}
+          value={formData.confirmSenha}
+          onChange={(value) =>
+            setFormData({ ...formData, confirmSenha: value })
+          }
           onFocus={() => handleFocus("confirmSenha")}
           errorMessage={formErrors.confirmSenha}
           required
@@ -152,4 +164,5 @@ const FormSignUp = () => {
     </form>
   );
 };
+
 export default FormSignUp;
