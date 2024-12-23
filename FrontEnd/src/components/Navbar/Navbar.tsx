@@ -39,18 +39,20 @@ const Navbar = () => {
           ></div>
         </label>
       </div>
-
-      {/* Content of Navbar */}
-      <div
-        className={`overflow-hidden duration-500 ${
-          isExpanded ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <ul className="mt-10 text-white">
-          <li className="p-2 hover:bg-slate-700">Home</li>
-          <li className="p-2 hover:bg-slate-700">About</li>
-          <li className="p-2 hover:bg-slate-700">Contact</li>
-        </ul>
+      <div className="flex flex-col w-full">
+        <div className="flex items-center justify-center w-full h-32">oi</div>
+        {/* Content of Navbar */}
+        <div
+          className={`overflow-hidden duration-500 h-full ${
+            isExpanded ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <ul className="mt-10 text-white ">
+            <li className="p-2 hover:bg-slate-700">Home</li>
+            <li className="p-2 hover:bg-slate-700">About</li>
+            <li className="p-2 hover:bg-slate-700">Contact</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

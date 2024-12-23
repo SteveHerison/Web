@@ -8,13 +8,27 @@ datasource db {
 }
 
 model usuarios {
-  id           Int       @id @default(autoincrement()) @map("_id")
-  nome         String    @db.VarChar(100)
-  email        String    @unique @default("") @db.VarChar(100)
-  cpf          String    @unique @default("") @db.VarChar(18)
-  senha        String    @default("") @db.VarChar(255)
-  datacadastro DateTime  @db.Date
+  id           Int      @id @default(autoincrement())
+  nome         String   @db.VarChar(100)
+  email        String   @unique @default("") @db.VarChar(100)
+  cpf          String   @unique @default("0") @db.VarChar(18)
+  senha        String   @default("0") @db.VarChar(255)
+  datacadastro DateTime @db.Date
 
   @@index([cpf], map: "cpf")
   @@index([email], map: "email")
+}
+
+model agendamentos {
+  id   Int    @id @default(autoincrement()) @db.UnsignedInt
+  nome String @db.VarChar(150)
+}
+
+model funcionarios {
+  id           Int      @id @default(autoincrement())
+  nome         String   @unique(map: "nome") @db.VarChar(150)
+  cpf          String   @unique(map: "cpf") @db.VarChar(150)
+  email        String?  @db.VarChar(150)
+  celular      String   @db.VarChar(150)
+  datacadastro DateTime @db.Date
 }

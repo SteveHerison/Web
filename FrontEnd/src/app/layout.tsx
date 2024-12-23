@@ -5,7 +5,7 @@ type Props = {
 };
 const Layout = ({ children }: Props) => {
   return (
-    <div className="w-screen h-screen overflow-x-hidden bg-slate-50">
+    <div className="w-screen h-screen overflow-hidden bg-slate-50">
       {children}
     </div>
   );
